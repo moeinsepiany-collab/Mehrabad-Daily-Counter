@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -23,19 +21,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run flight script
+      - name: Run script
         run: python main.py
 
-      - name: Commit and push results (if changed)
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-          if git diff --quiet output/; then
-            echo "No changes to commit"
-          else
-            git add output/
-            git commit -m "Update flight stats - $(date '+%Y-%m-%d %H:%M')"
-            git push
-            echo "Changes committed and pushed"
-          fi
+      - name: Commit results (if any)
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update flight stats - $(date +'%Y-%m-%d')"
+          file_pattern: output/ raw_data.json
